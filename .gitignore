@@ -1,0 +1,26 @@
+# Node.js (如果你未來會用到 node)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VS Code 設定檔
+.vscode/
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 暫存檔
+*.log
+*.tmp
+
+# Office 檔案暫存
+~$*
+
+# 不要忽略你的 comments.xlsx（如果要一起管理）
+# 如果 comments.xlsx 是測試資料且不想上傳，可加上：
+# comments.xlsx
+
+# 不要忽略你的前端原始碼（index.html, script.js, style.css）

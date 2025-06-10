@@ -1,0 +1,36 @@
+    <!DOCTYPE html>
+    <html lang="zh-Hant">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>留言篩選原型</title>
+        <link rel="stylesheet" href="style.css" />
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>模擬貼文</h2> <p>這是一篇有很多留言的貼文，請使用下方功能篩選留言。</p>
+            <div class="filters">
+                <h3>留言篩選器</h3> <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> <label><input type="checkbox" id="filterUser"> 排除小明留言</label>
+
+                <label for="sortSelect">留言排序依據：</label>
+                <select id="sortSelect">
+                    <option value="default">預設順序</option>
+                    <option value="newest">時間：新 → 舊</option>
+                    <option value="oldest">時間：舊 → 新</option>
+                    <option value="likes">按讚數：多 → 少</option>
+                </select>
+
+            </div>
+            <br></br>
+            
+            <div id="commentSection"></div>
+
+            <button id="resetBtn" style="margin-top:10px;">清除所有紀錄</button>
+        </div>
+        <script src="script.js"></script>
+    </body> 
+    </html>
