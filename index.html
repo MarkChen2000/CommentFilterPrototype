@@ -14,7 +14,13 @@
         <div class="container">
             <h2>模擬貼文</h2> <p>這是一篇有很多留言的貼文，請使用下方功能篩選留言。</p>
             <div class="filters">
-                <h3>留言篩選器</h3> <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> <label><input type="checkbox" id="filterUser"> 排除小明留言</label>
+                <h3>留言篩選器</h3> 
+                <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> 
+                <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> 
+                <label><input type="checkbox" id="filterIrrelevant"> 排除無關留言（AI判斷beta）</label>
+
+                <!-- JS 動態渲染排除名單 -->
+                <div id="excludedListContainer"></div>
 
                 <label for="sortSelect">留言排序依據：</label>
                 <select id="sortSelect">

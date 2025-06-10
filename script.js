@@ -25,6 +25,8 @@
                         time: row.time,
                         avatar: row.avatar,
                         likes: Number(row.likes),
+                        irrelevantTag: String(row.irrelevantTag).trim() === "1" ? 1 : 0, //無論是空字串、0、undefined 都會被視為 0，只有 "1" 會是 1。
+                        image: row.image || "", // 如果沒有圖片則為空字串
                         replies: []
                     }));
 
@@ -41,7 +43,9 @@
                                         text: reply.text,
                                         time: reply.time,
                                         avatar: reply.avatar,
-                                        likes: Number(reply.likes)
+                                        likes: Number(reply.likes),
+                                        irrelevantTag: String(reply.irrelevantTag).trim() === "1" ? 1 : 0,
+                                        image: reply.image || "" 
                                     });
                                 }
                             });
@@ -64,6 +68,61 @@
         });
     ;
     
+    // 取得排除名單
+    function getExcludedNames() {
+        return JSON.parse(localStorage.getItem('excludedNames') || '[]');
+    }
+
+    // 儲存排除名單
+    function setExcludedNames(list) {
+        localStorage.setItem('excludedNames', JSON.stringify(list));
+    }
+
+    // 渲染排除名單區塊
+    function renderExcludedList() {
+        let excludedList = getExcludedNames();
+        let container = document.getElementById("excludedListContainer");
+        if (!container) return;
+        let isOpen = container.classList.contains("open");
+        let html = `
+            <div style="margin-bottom:8px;">
+                <button id="toggleExcludedListBtn" style="font-size:0.95em;">
+                    ${isOpen ? "▼" : "▶"} 排除名單 (${excludedList.length})
+                </button>
+            </div>
+            <div id="excludedListPanel" style="display:${isOpen ? "block" : "none"}; margin-bottom:8px;">
+                ${excludedList.length === 0 ? "<span style='color:gray;'>（無）</span>" : ""}
+                ${excludedList.map(item => `
+                    <span class="excluded-user">
+                        <span class="avatar avatar-small">${item.avatar}</span>
+                        ${item.name}
+                        <button class="unexclude-btn" data-name="${item.name}">取消</button>
+                    </span>
+                `).join("")}
+            </div>
+        `;
+        container.innerHTML = html;
+
+        // 綁定開闔
+        document.getElementById("toggleExcludedListBtn").onclick = function() {
+            container.classList.toggle("open");
+            renderExcludedList();
+        };
+        // 綁定取消排除
+        container.querySelectorAll(".unexclude-btn").forEach(btn => {
+            btn.onclick = function() {
+                let name = btn.dataset.name;
+                let list = getExcludedNames().filter(item => item.name !== name);
+                setExcludedNames(list);
+                renderComments();
+                renderExcludedList();
+            }
+        });
+    }
+
+    // 頁面載入時先渲染一次
+    renderExcludedList();
+
     const commentSection = document.getElementById("commentSection")
 
     function renderComments() {
@@ -71,19 +130,25 @@
         commentSection.innerHTML = "";
         // 清空 commentSection 以便重新渲染
 
+        // 取得排除名單
+        const excludedList = getExcludedNames();
+        const excludedNames = excludedList.map(item => item.name);
+
         // 篩選條件，將勾選的條件應用到 filteredComments 上
         const filterAt = document.getElementById("filterAt").checked;
         const filterShort = document.getElementById("filterShort").checked;
-        const filterUser = document.getElementById("filterUser").checked;
-        const sortType = document.getElementById("sortSelect").value;
+        const filterIrrelevant = document.getElementById("filterIrrelevant").checked;
 
+        // 篩選主留言
         let filteredComments = comments.filter(c => {
             if (filterAt && c.text.includes("@")) return false;
             if (filterShort && c.text.length < 5) return false;
-            if (filterUser && c.name === "小明") return false;
+            if (filterIrrelevant && c.irrelevantTag === 1) return false;
+            if (excludedNames.includes(c.name)) return false; 
             return true;
         });
 
+        const sortType = document.getElementById("sortSelect").value;
         // 依照要求排序 filteredComments
         if (sortType === "newest") {
             filteredComments.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -117,8 +182,16 @@
             div.innerHTML = `
                     <div class="avatar">${comment.avatar}</div> 
                     <div class="comment-body">
-                        <div class="comment-name">${comment.name}</div> 
+                        <div class="comment-name">
+                            ${comment.name}
+                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除</button>
+                        </div>
                         <div class="comment-time">${comment.time}</div> 
+
+                        <div class="comment-image">
+                            ${comment.image ? `<img src="/images/${comment.image}" class="comment-img" alt="留言圖片">` : ""}
+                        </div>
+
                         <div class="comment-text">${comment.text}</div> 
                         <div class="comment-actions">
                             <span class="like-btn${liked ? ' liked' : ''}" data-index="${index}">
@@ -129,24 +202,44 @@
                     </div>
                     `;
             commentSection.appendChild(div);
+            
+            //
+            // 回覆區域：每個留言都可以有多個回覆
+            
+            // 先篩選出可見回覆
+            const visibleReplies = (comment.replies || []).filter(reply => {
+                if (filterAt && reply.text.includes("@")) return false;
+                if (filterShort && reply.text.length < 5) return false;
+                if (filterIrrelevant && reply.irrelevantTag === 1) return false;
+                if (excludedNames.includes(reply.name)) return false;
+                return true;
+            });
 
             // 展開/收合按鈕
-            const toggleBtn = document.createElement("div");
-            toggleBtn.className = "toggle-replies";
-            toggleBtn.textContent = comment.replies?.length > 0 ? "▶ 查看回覆（" + comment.replies.length + "）" : "";
-            toggleBtn.dataset.index = index;
-            commentSection.appendChild(toggleBtn);
+            if (visibleReplies.length > 0) {
+                const toggleBtn = document.createElement("div");
+                toggleBtn.className = "toggle-replies";
+                toggleBtn.textContent = `▶ 查看回覆（${visibleReplies.length}）`;
+                toggleBtn.dataset.index = index;
+                commentSection.appendChild(toggleBtn);
+            }
 
-            // 選染回覆區
+            // 渲染回覆區
             const replyContainer = document.createElement("div");
             // 檢查 localStorage 中是否有展開的回覆 ID
             // 如果有，則展開對應的回覆區
             const openRepliesId = localStorage.getItem('openReplies');
             replyContainer.className = "replies-container" + ((openRepliesId == comment.id) ? "" : " collapsed");
-            
             replyContainer.id = `replies-${index}`;
 
-            comment.replies?.forEach(reply => {
+            visibleReplies?.forEach(reply => {
+
+                // 回覆的篩選條件
+                if (filterAt && reply.text.includes("@")) return ;
+                if (filterShort && reply.text.length < 5) return ;
+                if (filterIrrelevant && reply.irrelevantTag === 1) return;
+                if (excludedNames.includes(reply.name)) return;
+
                 const replyDiv = document.createElement("div");
                 // 根據回覆者名稱添加樣式
                 // 如果是「你」，則添加 my-reply 樣式，不然添加 comment-reply 樣式
@@ -154,8 +247,16 @@
                 replyDiv.innerHTML = `
                     <div class="avatar">${reply.avatar}</div>
                     <div class="comment-body">
-                        <div class="comment-name">${reply.name}</div>
+                        <div class="comment-name">
+                            ${reply.name}
+                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除</button>
+                        </div>
                         <div class="comment-time">${reply.time}</div>
+
+                        <div class="comment-image">
+                            ${reply.image ? `<img src="/images/${reply.image}" class="comment-img" alt="回覆圖片">` : ""}
+                        </div>
+                        
                         <div class="comment-text">${reply.text}</div>
                         <div class="comment-actions"><span>👍 ${reply.likes}</span></div>
                     </div>
@@ -288,6 +389,21 @@
                 renderComments();
             }
         };
+
+        // 綁定「排除」按鈕
+        document.querySelectorAll(".exclude-btn").forEach(btn => {
+            btn.onclick = function() {
+                const name = btn.dataset.name;
+                const avatar = btn.dataset.avatar;
+                let list = getExcludedNames();
+                if (!list.some(item => item.name === name)) {
+                    list.push({ name, avatar });
+                    setExcludedNames(list);
+                    renderComments();
+                    renderExcludedList();
+                }
+            }
+        });
     }
 
     document.getElementById("resetBtn").addEventListener("click", () => {
@@ -297,7 +413,7 @@
     // 2. 取消所有篩選器
     document.getElementById("filterAt").checked = false;
     document.getElementById("filterShort").checked = false;
-    document.getElementById("filterUser").checked = false;
+    document.getElementById("filterIrrelevant").checked = false;
     document.getElementById("sortSelect").value = "default";
 
     // 3. 重新載入留言資料（重新 fetch comments.xlsx）
