@@ -1,6 +1,7 @@
 
 
     let comments = []; // 全域宣告所有留言資料
+    let aiFilteredIds = null; // 全域變數，存AI篩選結果
     
     // 先讀取原始留言資料
     // 使用 PapaParse 讀取多個 worksheet（mainComments, replys）
@@ -96,7 +97,7 @@
                     <span class="excluded-user">
                         <span class="avatar avatar-small">${item.avatar}</span>
                         ${item.name}
-                        <button class="unexclude-btn" data-name="${item.name}">取消</button>
+                        <button class="unexclude-btn" data-name="${item.name}">取消排除</button>
                     </span>
                 `).join("")}
             </div>
@@ -145,6 +146,9 @@
             if (filterShort && c.text.length < 5) return false;
             if (filterIrrelevant && c.irrelevantTag === 1) return false;
             if (excludedNames.includes(c.name)) return false; 
+
+            // AI 篩選，只顯示符合條件的留言
+            if (aiFilteredIds && !aiFilteredIds.includes(c.id)) return false;
             return true;
         });
 
@@ -184,7 +188,7 @@
                     <div class="comment-body">
                         <div class="comment-name">
                             ${comment.name}
-                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除</button>
+                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除這個人</button>
                         </div>
                         <div class="comment-time">${comment.time}</div> 
 
@@ -232,7 +236,7 @@
             replyContainer.className = "replies-container" + ((openRepliesId == comment.id) ? "" : " collapsed");
             replyContainer.id = `replies-${index}`;
 
-            visibleReplies?.forEach(reply => {
+            visibleReplies?.forEach((reply, replyIndex) => {
 
                 // 回覆的篩選條件
                 if (filterAt && reply.text.includes("@")) return ;
@@ -243,13 +247,13 @@
                 const replyDiv = document.createElement("div");
                 // 根據回覆者名稱添加樣式
                 // 如果是「你」，則添加 my-reply 樣式，不然添加 comment-reply 樣式
-                replyDiv.className = reply.name === "你" ? " my-reply" : "comment-reply";
+                replyDiv.className = reply.name === "你" ? "my-reply" : "comment-reply";
                 replyDiv.innerHTML = `
                     <div class="avatar">${reply.avatar}</div>
                     <div class="comment-body">
                         <div class="comment-name">
                             ${reply.name}
-                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除</button>
+                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除這個人</button>
                         </div>
                         <div class="comment-time">${reply.time}</div>
 
@@ -258,7 +262,11 @@
                         </div>
                         
                         <div class="comment-text">${reply.text}</div>
-                        <div class="comment-actions"><span>👍 ${reply.likes}</span></div>
+                        <div class="comment-actions">
+                            <span class="reply-like-btn" data-comment-index="${index}" data-reply-index="${replyIndex}">
+                                👍 ${reply.likes}
+                            </span>
+                        </div>
                     </div>
                 `;
                 replyContainer.appendChild(replyDiv);
@@ -269,15 +277,19 @@
             // 回覆輸入區（隱藏，點回覆才出現）
             const replyBox = document.createElement("div");
             replyBox.className = "comment-reply-box";
+            replyBox.id = `reply-box-${index}`;
             replyBox.innerHTML = `
-                <textarea placeholder="輸入你的回覆…" id="reply-text-${index}"></textarea><br>
-                <button data-index="${index}">送出回覆</button>
+                <div class="avatar">🧑</div>
+                <div class="comment-body">
+                    <textarea placeholder="輸入你的回覆…" id="reply-text-${index}"></textarea><br>
+                    <button id="myReplyBtn" data-index="${index}">送出回覆</button>
+                </div>
             `;
             replyBox.style.display = "none";
             commentSection.appendChild(replyBox);
         });
 
-        // 新增「我的留言」輸入區
+        // 顯示「我的留言」輸入區
         const myCommentBox = document.createElement("div");
         myCommentBox.className = "my-comment";
         myCommentBox.style.marginTop = "20px";
@@ -290,7 +302,7 @@
         `;
         commentSection.appendChild(myCommentBox);
         
-        // 綁定「讚」按鈕點擊事件
+        // 綁定主流言「讚」按鈕點擊事件
         document.querySelectorAll(".like-btn").forEach(btn => {
             btn.addEventListener("click", () => {
             const i = btn.dataset.index;
@@ -313,57 +325,37 @@
             });
         });
 
-        // 綁定「回覆」按鈕點擊 → 顯示輸入區
-        document.querySelectorAll(".reply-btn").forEach(btn => {
+        // 綁定回覆的「讚」按鈕
+        document.querySelectorAll(".reply-like-btn").forEach(btn => {
             btn.addEventListener("click", () => {
-                const i = btn.dataset.index;
-                const replyBox = document.getElementById(`reply-text-${ i }`).parentElement;
-                replyBox.style.display = replyBox.style.display === "none" ? "block" : "none";
-            });
-        });
+                const commentIdx = btn.dataset.commentIndex;
+                const replyIdx = btn.dataset.replyIndex;
+                const comment = filteredComments[commentIdx];
+                const reply = (comment.replies || []).filter(reply => {
+                    if (filterAt && reply.text.includes("@")) return false;
+                    if (filterShort && reply.text.length < 5) return false;
+                    if (filterIrrelevant && reply.irrelevantTag === 1) return false;
+                    if (excludedNames.includes(reply.name)) return false;
+                    return true;
+                })[replyIdx];
+                if (!reply) return;
 
-        // 綁定事件：送出「我的」回覆
-        document.querySelectorAll(".comment-reply-box button").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const i = btn.dataset.index;
-                const textarea = document.getElementById(`reply-text-${i}`);
-                const text = textarea.value.trim();
-                if (text.length > 0) {
-                    
-                    //  新增回覆
-                    comments[i].replies.push({
-                        name: "你",
-                        text: text,
-                        time: new Date().toLocaleString(),
-                        avatar: "🧑",
-                        likes: 0
-                    });
-                    // 儲存到 localStorage
-                    localStorage.setItem('replies_' + comments[i].id, JSON.stringify(comments[i].replies));
-                    // 記錄展開狀態
-                    localStorage.setItem('openReplies', comments[i].id);
-                    renderComments();
-                }
-            });
-        });
-
-        // 綁定事件：展開/收合回覆
-        document.querySelectorAll(".toggle-replies").forEach(toggle => {
-            toggle.addEventListener("click", () => {
-                const i = toggle.dataset.index;
-                const container = document.getElementById(`replies-${i}`);
-                const isCollapsed = container.classList.contains("collapsed");
-                container.classList.toggle("collapsed");
-                if (!isCollapsed) {
-                    localStorage.removeItem('openReplies');
+                // localStorage key: liked_reply_{commentId}_{replyIdx}
+                const key = `liked_reply_${comment.id}_${replyIdx}`;
+                if (!localStorage.getItem(key)) {
+                    localStorage.setItem(key, '1');
+                    reply.likes++;
                 } else {
-                    localStorage.setItem('openReplies', filteredComments[i].id);
+                    localStorage.removeItem(key);
+                    if (reply.likes > 0) reply.likes--;
                 }
-                toggle.textContent = isCollapsed ? "▼ 收合回覆" : `▶ 查看回覆（${comments[i].replies.length}）`;
+                // 儲存回覆到 localStorage
+                localStorage.setItem('replies_' + comment.id, JSON.stringify(comment.replies));
+                renderComments();
             });
         });
 
-        // 綁定送出 「我的留言」 事件
+        // 綁定事件： 送出「我的」留言 
         document.getElementById("myCommentBtn").onclick = function() {
             const text = document.getElementById("myCommentInput").value.trim();
             if (text.length > 0) {
@@ -390,6 +382,65 @@
             }
         };
 
+        // 綁定事件：送出「我的」回覆
+        document.querySelectorAll(".comment-reply-box button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const i = btn.dataset.index;
+                const textarea = document.getElementById(`reply-text-${i}`);
+                const text = textarea.value.trim();
+                if (text.length > 0) {
+                    
+                    // 用 filteredComments 找到正確的 comment id
+                    const commentId = filteredComments[i].id;
+                    // 再用 id 找到 comments 裡的原始留言
+                    const originIndex = comments.findIndex(c => c.id === commentId);
+
+                    if (originIndex === -1) return; // 如果找不到對應的留言，則不處理
+
+                    //  新增回覆
+                    comments[originIndex].replies.push({
+                        name: "你",
+                        text: text,
+                        time: new Date().toLocaleString(),
+                        avatar: "🧑",
+                        likes: 0
+                    });
+                    // 儲存到 localStorage
+                    localStorage.setItem('replies_' + comments[originIndex].id, JSON.stringify(comments[originIndex].replies));
+                    // 記錄展開狀態
+                    localStorage.setItem('openReplies', comments[originIndex].id);
+                    textarea.value = ""; // 清空輸入框
+
+                    renderComments();
+                }
+            });
+        });
+
+        // 綁定「回覆」按鈕點擊 → 顯示輸入區
+        document.querySelectorAll(".reply-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const i = btn.dataset.index;
+                const replyBox = document.getElementById(`reply-box-${ i }`);
+                replyBox.style.display = replyBox.style.display === "none" ? "block" : "none";
+            });
+        });
+
+        // 綁定事件：展開/收合回覆
+        document.querySelectorAll(".toggle-replies").forEach(toggle => {
+            toggle.addEventListener("click", () => {
+                const i = toggle.dataset.index;
+                const container = document.getElementById(`replies-${i}`);
+                const isCollapsed = container.classList.contains("collapsed");
+                container.classList.toggle("collapsed");
+                if (!isCollapsed) {
+                    localStorage.removeItem('openReplies');
+                } else {
+                    localStorage.setItem('openReplies', filteredComments[i].id);
+                }
+                toggle.textContent = isCollapsed ? "▼ 收合回覆" : `▶ 查看回覆（${comments[i].replies.length}）`;
+            });
+        });
+
         // 綁定「排除」按鈕
         document.querySelectorAll(".exclude-btn").forEach(btn => {
             btn.onclick = function() {
@@ -406,17 +457,43 @@
         });
     }
 
+    // 重設、清除紀錄按鈕
     document.getElementById("resetBtn").addEventListener("click", () => {
-    // 1. 清除 localStorage
-    localStorage.clear();
+        // 1. 清除 localStorage
+        localStorage.clear();
 
-    // 2. 取消所有篩選器
-    document.getElementById("filterAt").checked = false;
-    document.getElementById("filterShort").checked = false;
-    document.getElementById("filterIrrelevant").checked = false;
-    document.getElementById("sortSelect").value = "default";
+        // 2. 取消所有篩選器
+        document.getElementById("filterAt").checked = false;
+        document.getElementById("filterShort").checked = false;
+        document.getElementById("filterIrrelevant").checked = false;
+        document.getElementById("sortSelect").value = "default";
 
-    // 3. 重新載入留言資料（重新 fetch comments.xlsx）
-    // 這裡直接重新整理頁面最簡單
-    location.reload();
-});
+        // 3. 重新載入留言資料（重新 fetch comments.xlsx）
+        // 這裡直接重新整理頁面最簡單
+        location.reload();
+    });
+
+    // AI 篩選功能
+    document.getElementById("aiQueryBtn").onclick = function() {
+        const query = document.getElementById("aiQueryInput").value.trim();
+        if (!query) return;
+
+        // 
+        // AI 篩選：根據輸入的關鍵字過濾留言
+        // 以後若要串接 AI 服務，可以在這裡實作
+        // 目前簡單實作為關鍵字過濾
+        // 
+        // 只要留言內容包含輸入關鍵字就顯示
+        aiFilteredIds = comments
+            .filter(c => c.text && c.text.includes(query))
+            .map(c => c.id);
+
+        renderComments();
+    };
+
+    // AI 篩選重設按鈕
+    document.getElementById("aiQueryResetBtn").onclick = function() {
+        aiFilteredIds = null;
+        document.getElementById("aiQueryInput").value = "";
+        renderComments();
+    };

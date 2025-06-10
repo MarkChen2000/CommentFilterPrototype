@@ -47,7 +47,6 @@ body {
         border: 1px solid #ccc;
         resize: none;
     }
-
     #myCommentBtn {
         margin-top: 5px;
         padding: 4px 10px;
@@ -129,10 +128,46 @@ body {
     align-items: flex-start;
     background-color: #fffbe6;
     border: 2px solid #ffd700;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px;
     margin: 6px 0 6px 50px;
 }
+
+    .comment-reply-box {
+        margin-left: 50px;
+        margin-top: 6px;
+        background-color: #fffbe6;
+        border: 2px solid #ffd700;
+        border-radius: 10px;
+        padding: 12px;
+        display: flex;
+        align-items: flex-start;
+    }
+    .comment-reply-box textarea,
+    #myCommentInput {
+        width: 90%;
+        height: 50px;
+        font-size: 1em;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: none;
+    }
+    .comment-reply-box button,
+    #myCommentBtn {
+        margin-top: 5px;
+        padding: 4px 10px;
+        font-size: 0.9em;
+        border-radius: 4px;
+        background-color: #1877f2;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .comment-reply-box button:hover,
+    #myCommentBtn:hover {
+        background-color: #145db2;
+    }
 
     .comment-reply .avatar {
         width: 32px;
