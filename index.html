@@ -12,37 +12,50 @@
 
     <body>
         <div class="container">
-            <h2>模擬貼文</h2> <p>這是一篇有很多留言的貼文，請使用下方功能篩選留言。</p>
-            <div class="filters">
+            <h1>模擬貼文留言系統</h1>
 
-                <!-- 留言篩選功能 -->
-                <h3>留言篩選器</h3> 
-                <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> 
-                <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> 
-                <label><input type="checkbox" id="filterIrrelevant"> AI排除無關留言（beta）</label>
+            <h2>任天堂 Switch 2 首日銷量揭曉！傳為 Sony PS4 的三倍之多</h2>
+            <label>2025/06/09 11:35</label>
+            <img src="/images/postPic.jpg" alt="貼文圖片" style="width:100%; max-width:600px; margin:10px 0;">
+            <p>任天堂 Switch 2 於上週在特定市場搶先開賣，全球掀起搶購熱潮，不少台灣玩家也紛紛跨海開箱。據傳 Switch 2 首賣當日即售出 300 萬台，創下史上最高紀錄。
+            <p>知名 YouTuber Nintendo Prime 獲得消息指出，任天堂 Switch 2 首日全球銷量突破 300 萬台，打破先前由 Sony PS4 創下的 100 萬台首日紀錄。同時，任天堂更有望在一週內再度挑戰 PS4、PS5 前兩個月累積銷量 450 萬台的門檻，這樣的銷售速度可說是前所未見。</p>
+            <p>相較於初代 Switch 上市時遭黃牛炒價、玩家一機難求，這次任天堂一再強調備貨充足，呼籲玩家耐心等待，更與多間知名網路商場聯手打擊 Switch 2 的黃牛轉售行為。從各國首賣狀況來看，雖然美國、日本等主要市場都在第一天面臨缺貨，僅開放預約民眾拿取，但部分歐洲國家也出現可直接購買的現貨供應情況。</p>
+            <p>至於在台灣方面，任天堂預計在 7 月 10 日正式發布！目前各大平台也都已經開放預訂，不過近期卻傳出砍單潮，不少通路緊急通知顧客恐無法履行 Switch 2 單機版訂單，疑似任天堂將更多出貨集中於《瑪利歐賽車世界》同捆包。</p>
+            
+            <div class="floating-filter-panel">
+                <div class="filters">
+                    <!-- 留言篩選功能 -->
+                    <h3>留言篩選器</h3> 
+                    <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> 
+                    <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> 
+                    <label><input type="checkbox" id="filterIrrelevant"> AI排除無關留言（beta）</label>
 
-                <!-- JS 動態渲染排除名單 -->
-                 <label>排除名單</label>
-                <div id="excludedListContainer"></div>
+                    <!-- JS 動態渲染排除名單 -->
+                    <label>排除名單</label>
+                    <div id="excludedListContainer"></div>
 
-                <!-- 留言關鍵字搜尋功能 -->
-                <label>AI篩選指令（beta，目前只開放關鍵字篩選）</label>
-                <div style="margin: 10px 0;">
-                    <input type="text" id="aiQueryInput" placeholder="輸入你的AI篩選指令，例如：幫我找最中立的留言" style="width:75%;">
-                    <button id="aiQueryBtn">AI篩選</button>
-                    <button id="aiQueryResetBtn">清除AI篩選</button>
+                    <!-- 留言關鍵字搜尋功能 -->
+                    <label>AI篩選指令（beta，目前只開放關鍵字篩選）</label>
+                    <div style="margin: 10px 0;">
+                        <input type="text" id="aiQueryInput" placeholder="輸入你的AI篩選指令，例如：幫我找最中立的留言" style="width:75%;">
+                        <button id="aiQueryBtn">AI篩選</button>
+                        <button id="aiQueryResetBtn">清除AI篩選</button>
+                    </div>
+
                 </div>
-
-                <!-- 留言排序功能 -->
-                <label for="sortSelect">留言排序依據</label>
-                <select id="sortSelect">
-                    <option value="default">預設順序</option>
-                    <option value="newest">時間：新 → 舊</option>
-                    <option value="oldest">時間：舊 → 新</option>
-                    <option value="likes">按讚數：多 → 少</option>
-                </select>
-
             </div>
+
+            <h2>留言</h2>
+
+            <!-- 留言排序功能 -->
+            <label for="sortSelect">留言排序依據</label>
+            <select id="sortSelect">
+                <option value="default">預設順序</option>
+                <option value="newest">時間：新 → 舊</option>
+                <option value="oldest">時間：舊 → 新</option>
+                <option value="likes">按讚數：多 → 少</option>
+            </select>
+
             <br></br>
             
             <!-- JS 動態生成留言區 -->

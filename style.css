@@ -19,6 +19,40 @@ body {
     margin-bottom: 0.5em;
 }
 
+.floating-filter-panel {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    z-index: 999;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 18px 22px 18px 22px;
+    min-width: 260px;
+    max-width: 340px;
+    max-height: 80vh;
+    overflow-y: auto;
+    font-size: 1em;
+}
+
+.floating-filter-panel label,
+.floating-filter-panel h3 {
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+    .floating-filter-panel {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        max-width: 100vw;
+        min-width: 0;
+        padding: 10px 6px;
+    }
+}
+
 .comment {
     display: flex;
     align-items: flex-start;

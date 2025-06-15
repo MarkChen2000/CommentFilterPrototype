@@ -193,7 +193,7 @@
                         <div class="comment-time">${comment.time}</div> 
 
                         <div class="comment-image">
-                            ${comment.image ? `<img src="/images/${comment.image}" class="comment-img" alt="留言圖片">` : ""}
+                            ${comment.image ? `<img src="${comment.image}" class="comment-img" alt="留言圖片">` : ""}
                         </div>
 
                         <div class="comment-text">${comment.text}</div> 
@@ -258,7 +258,7 @@
                         <div class="comment-time">${reply.time}</div>
 
                         <div class="comment-image">
-                            ${reply.image ? `<img src="/images/${reply.image}" class="comment-img" alt="回覆圖片">` : ""}
+                            ${reply.image ? `<img src="${reply.image}" class="comment-img" alt="回覆圖片">` : ""}
                         </div>
                         
                         <div class="comment-text">${reply.text}</div>
