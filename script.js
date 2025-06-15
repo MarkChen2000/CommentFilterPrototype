@@ -109,7 +109,7 @@
             container.classList.toggle("open");
             renderExcludedList();
         };
-        // 綁定取消排除
+        // 綁定排除名單中的 取消排除 按鈕
         container.querySelectorAll(".unexclude-btn").forEach(btn => {
             btn.onclick = function() {
                 let name = btn.dataset.name;
@@ -145,7 +145,7 @@
             if (filterAt && c.text.includes("@")) return false;
             if (filterShort && c.text.length < 5) return false;
             if (filterIrrelevant && c.irrelevantTag === 1) return false;
-            if (excludedNames.includes(c.name)) return false; 
+            // if (excludedNames.includes(c.name)) return false;
 
             // AI 篩選，只顯示符合條件的留言
             if (aiFilteredIds && !aiFilteredIds.includes(c.id)) return false;
@@ -178,12 +178,26 @@
                 comment.replies = JSON.parse(savedReplies);
             }
 
-            const div = document.createElement("div");
             // 根據留言者名稱添加樣式
-            // 如果是「你」，則添加 my-comment 樣式，不然添加 comment 樣式
-            div.className =  comment.name === "你" ? " my-comment" : "comment";
+            const div = document.createElement("div");
 
-            div.innerHTML = `
+            // 如果是被排除的名單：
+            const isExcluded = excludedNames.includes(comment.name);
+            if (isExcluded) {
+                div.className = "excluded-comment";
+                div.innerHTML = `
+                    <div class="avatar">${comment.avatar}</div>
+                    <div class="excluded-info">
+                        <span class="excluded-name">${comment.name}</span>
+                        <button class="unexclude-btn" data-name="${comment.name}">取消排除</button>
+                    </div>
+                `;
+            }
+            // 如果不是被排除的名單
+            else { 
+                // 如果是「你」，則添加 my-comment 樣式，不然添加 comment 樣式
+                div.className =  comment.name === "你" ? " my-comment" : "comment";
+                div.innerHTML = `
                     <div class="avatar">${comment.avatar}</div> 
                     <div class="comment-body">
                         <div class="comment-name">
@@ -204,7 +218,9 @@
                             <span class="reply-btn" data-index="${index}">回覆</span>
                         </div>
                     </div>
-                    `;
+                `;
+            }
+            
             commentSection.appendChild(div);
             
             //
@@ -215,7 +231,7 @@
                 if (filterAt && reply.text.includes("@")) return false;
                 if (filterShort && reply.text.length < 5) return false;
                 if (filterIrrelevant && reply.irrelevantTag === 1) return false;
-                if (excludedNames.includes(reply.name)) return false;
+                // if (excludedNames.includes(reply.name)) return false;
                 return true;
             });
 
@@ -237,38 +253,46 @@
             replyContainer.id = `replies-${index}`;
 
             visibleReplies?.forEach((reply, replyIndex) => {
-
-                // 回覆的篩選條件
-                if (filterAt && reply.text.includes("@")) return ;
-                if (filterShort && reply.text.length < 5) return ;
-                if (filterIrrelevant && reply.irrelevantTag === 1) return;
-                if (excludedNames.includes(reply.name)) return;
-
-                const replyDiv = document.createElement("div");
                 // 根據回覆者名稱添加樣式
-                // 如果是「你」，則添加 my-reply 樣式，不然添加 comment-reply 樣式
-                replyDiv.className = reply.name === "你" ? "my-reply" : "comment-reply";
-                replyDiv.innerHTML = `
-                    <div class="avatar">${reply.avatar}</div>
-                    <div class="comment-body">
-                        <div class="comment-name">
-                            ${reply.name}
-                            <button class="exclude-btn" data-name="${comment.name}" data-avatar="${comment.avatar}">排除這個人</button>
-                        </div>
-                        <div class="comment-time">${reply.time}</div>
+                const replyDiv = document.createElement("div");
 
-                        <div class="comment-image">
-                            ${reply.image ? `<img src="${reply.image}" class="comment-img" alt="回覆圖片">` : ""}
+                // 如果是被排除的名單：
+                const isReplyExcluded = excludedNames.includes(reply.name);
+                if (isReplyExcluded) {
+                    replyDiv.className = "excluded-reply";
+                    replyDiv.innerHTML = `
+                        <div class="avatar">${reply.avatar}</div>
+                        <div class="excluded-info">
+                            <span class="excluded-name">${reply.name}</span>
+                            <button class="unexclude-btn" data-name="${reply.name}">取消排除</button>
                         </div>
-                        
-                        <div class="comment-text">${reply.text}</div>
-                        <div class="comment-actions">
-                            <span class="reply-like-btn" data-comment-index="${index}" data-reply-index="${replyIndex}">
-                                👍 ${reply.likes}
-                            </span>
+                    `;
+                }
+                else {
+                    // 如果是「你」，則添加 my-reply 樣式，不然添加 comment-reply 樣式
+                    replyDiv.className = reply.name === "你" ? "my-reply" : "comment-reply";
+                    replyDiv.innerHTML = `
+                        <div class="avatar">${reply.avatar}</div>
+                        <div class="comment-body">
+                            <div class="comment-name">
+                                ${reply.name}
+                                <button class="exclude-btn" data-name="${reply.name}" data-avatar="${reply.avatar}">排除這個人</button>
+                            </div>
+                            <div class="comment-time">${reply.time}</div>
+
+                            <div class="comment-image">
+                                ${reply.image ? `<img src="${reply.image}" class="comment-img" alt="回覆圖片">` : ""}
+                            </div>
+                            
+                            <div class="comment-text">${reply.text}</div>
+                            <div class="comment-actions">
+                                <span class="reply-like-btn" data-comment-index="${index}" data-reply-index="${replyIndex}">
+                                    👍 ${reply.likes}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
                 replyContainer.appendChild(replyDiv);
             });
 
@@ -310,18 +334,18 @@
             const originIndex = comments.findIndex(c => c.id === commentId);
             if (originIndex !== -1) {
                 if (!localStorage.getItem('liked_' + commentId)) {
-                // 按讚
-                localStorage.setItem('liked_' + commentId, '1');
-                comments[originIndex].likes++;
-            } else {
-                // 取消讚
-                localStorage.removeItem('liked_' + commentId);
-                if (comments[originIndex].likes > 0) {
-                    comments[originIndex].likes--;
+                    // 按讚
+                    localStorage.setItem('liked_' + commentId, '1');
+                    comments[originIndex].likes++;
+                } else {
+                    // 取消讚
+                    localStorage.removeItem('liked_' + commentId);
+                    if (comments[originIndex].likes > 0) {
+                        comments[originIndex].likes--;
+                    }
                 }
+                renderComments();
             }
-            renderComments();
-                }
             });
         });
 
@@ -441,7 +465,18 @@
             });
         });
 
-        // 綁定「排除」按鈕
+        // 綁定排除留言中的取消排除按鈕
+        document.querySelectorAll(".unexclude-btn").forEach(btn => {
+            btn.onclick = function() {
+                const name = btn.dataset.name;
+                let list = getExcludedNames().filter(item => item.name !== name);
+                setExcludedNames(list);
+                renderComments();
+                renderExcludedList();
+            }
+        });
+
+        // 綁定留言中的「排除」按鈕
         document.querySelectorAll(".exclude-btn").forEach(btn => {
             btn.onclick = function() {
                 const name = btn.dataset.name;

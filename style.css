@@ -62,53 +62,20 @@ body {
     margin-bottom: 10px;
 }
 
-.my-comment {
-    display: flex;
-    align-items: flex-start;
-    background-color: #fffbe6;
-    border: 2px solid #ffd700;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-}
-
-    #myCommentInput {
-        width: 90%;
-        height: 50px;
-        font-size: 1em;
-        padding: 5px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        resize: none;
-    }
-    #myCommentBtn {
-        margin-top: 5px;
-        padding: 4px 10px;
-        font-size: 0.9em;
-        border-radius: 4px;
-        background-color: #1877f2;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-    #myCommentBtn:hover {
-        background-color: #145db2;
+    .avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #ddd;
+        border-radius: 50%;
+        margin-right: 12px;
+        text-align: center;
+        line-height: 40px;
+        font-size: 20px;
     }
 
-.avatar {
-    width: 40px;
-    height: 40px;
-    background-color: #ddd;
-    border-radius: 50%;
-    margin-right: 12px;
-    text-align: center;
-    line-height: 40px;
-    font-size: 20px;
-}
-
-.comment-body {
-    flex: 1;
-}
+    .comment-body {
+        flex: 1;
+    }
 
     .comment-name {
         font-weight: bold;
@@ -148,6 +115,39 @@ body {
         font-weight: bold;
     }
 
+.my-comment {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fffbe6;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+    #myCommentInput {
+        width: 90%;
+        height: 50px;
+        font-size: 1em;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: none;
+    }
+    #myCommentBtn {
+        margin-top: 5px;
+        padding: 4px 10px;
+        font-size: 0.9em;
+        border-radius: 4px;
+        background-color: #1877f2;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    #myCommentBtn:hover {
+        background-color: #145db2;
+    }
+
 .comment-reply {
     display: flex;
     align-items: flex-start;
@@ -156,17 +156,6 @@ body {
     padding: 10px;
     margin: 6px 0 6px 50px;
 }
-
-.my-reply {
-    display: flex;
-    align-items: flex-start;
-    background-color: #fffbe6;
-    border: 2px solid #ffd700;
-    border-radius: 10px;
-    padding: 10px;
-    margin: 6px 0 6px 50px;
-}
-
     .comment-reply-box {
         margin-left: 50px;
         margin-top: 6px;
@@ -267,25 +256,15 @@ body {
         margin-left: 50px;
     }
 
-    #resetBtn {
-        position: fixed;
-        right: 24px;
-        bottom: 24px;
-        z-index: 1000;
-        background: #e0245e;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        padding: 12px 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        cursor: pointer;
-        font-size: 1em;
-        opacity: 0.85;
-        transition: opacity 0.2s;
-    }
-    #resetBtn:hover {
-        opacity: 1;
-    }
+.my-reply {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fffbe6;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 6px 0 6px 50px;
+}
     
 .exclude-btn {
     margin-left: 4px;
@@ -299,6 +278,42 @@ body {
     .exclude-btn:hover {
         background: #ffdada;
         border-color: #ff8888;
+    }
+
+.excluded-comment {
+    display: flex;
+    align-items: center;
+    background: #e0e0e0;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    color: #888;
+    font-style: italic;
+}
+    .excluded-comment .avatar {
+        margin-right: 12px;
+    }
+    .excluded-info {
+        display: flex;
+        align-items: center;
+    }
+    .excluded-name {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+.excluded-reply {
+    display: flex;
+    align-items: center;
+    background: #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 6px 0 6px 50px;
+    color: #888;
+    font-style: italic;
+}
+    .excluded-reply .avatar {
+        margin-right: 12px;
     }
 
 .excluded-user {
@@ -336,3 +351,22 @@ body {
         border-color: #ff8888;
     }
 
+#resetBtn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+    background: #e0245e;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    font-size: 1em;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+    #resetBtn:hover {
+        opacity: 1;
+    }
