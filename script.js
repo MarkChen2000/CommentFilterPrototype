@@ -532,3 +532,9 @@
         document.getElementById("aiQueryInput").value = "";
         renderComments();
     };
+
+    // 前往問卷填寫頁面
+    document.getElementById("questionnaireBtn").onclick = function() {
+        // 新增分頁方式
+        window.open("https://docs.google.com/forms/d/e/1FAIpQLSd7cJl2mEun_MTnxM9zOQ_0WTw6lXGXDWNPMpkpM5p9Fnx8vg/viewform?usp=header", "_blank");
+    };
