@@ -13,7 +13,15 @@
     <body>
         <div class="container">
             <h1>模擬貼文留言系統</h1>
-
+            <p>這是一個模擬的留言系統，包含留言篩選、排序、AI篩選等功能。請在下方查看貼文與留言並使用左側留言篩選器進行操作。
+                本頁面之模擬留言改良原型並不會串連後端，也就是說，您所做的任何操作亦不會被上傳，請安心操作。
+                右下角之「清除所有紀錄」會將您所選擇的所有留言篩選條件重置。
+                <br>請受測者操作<strong>至少5分鐘</strong>之後，再點擊右側按鈕前往填寫問卷。謝謝！<br>
+                <br>建議：使用電腦瀏覽本頁面，並請以100%以下的縮放率、或者自行調整，以獲得最佳體驗。
+                <strong>另外，本留言篩選系統為測試原型，可能會有一些小問題，請多包涵！</strong>
+            </p>
+            
+            <hr>
             <h2>任天堂 Switch 2 首日銷量揭曉！傳為 Sony PS4 的三倍之多</h2>
             <label>2025/06/09 11:35</label>
             <img src="./images/postPic.jpg" alt="貼文圖片" style="width:100%; max-width:600px; margin:10px 0;">
@@ -27,7 +35,7 @@
                     <!-- 留言篩選功能 -->
                     <h3>留言篩選器</h3> 
                     <label><input type="checkbox" id="filterAt"> 排除 @ 標記留言</label> 
-                    <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 5 字）</label> 
+                    <label><input type="checkbox" id="filterShort"> 排除短文留言（少於 10 字）</label> 
                     <label><input type="checkbox" id="filterIrrelevant"> AI排除無關留言（beta）</label>
 
                     <!-- JS 動態渲染排除名單 -->

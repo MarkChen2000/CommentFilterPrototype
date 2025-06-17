@@ -143,7 +143,7 @@
         // 篩選主留言
         let filteredComments = comments.filter(c => {
             if (filterAt && c.text.includes("@")) return false;
-            if (filterShort && c.text.length < 5) return false;
+            if (filterShort && c.text.length < 10) return false;
             if (filterIrrelevant && c.irrelevantTag === 1) return false;
             // if (excludedNames.includes(c.name)) return false;
 
@@ -229,7 +229,7 @@
             // 先篩選出可見回覆
             const visibleReplies = (comment.replies || []).filter(reply => {
                 if (filterAt && reply.text.includes("@")) return false;
-                if (filterShort && reply.text.length < 5) return false;
+                if (filterShort && reply.text.length < 10) return false;
                 if (filterIrrelevant && reply.irrelevantTag === 1) return false;
                 // if (excludedNames.includes(reply.name)) return false;
                 return true;
@@ -357,7 +357,7 @@
                 const comment = filteredComments[commentIdx];
                 const reply = (comment.replies || []).filter(reply => {
                     if (filterAt && reply.text.includes("@")) return false;
-                    if (filterShort && reply.text.length < 5) return false;
+                    if (filterShort && reply.text.length < 10) return false;
                     if (filterIrrelevant && reply.irrelevantTag === 1) return false;
                     if (excludedNames.includes(reply.name)) return false;
                     return true;
