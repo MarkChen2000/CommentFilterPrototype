@@ -372,21 +372,15 @@ body {
     }
 
 #questionnaireBtn {
-    position: fixed;
-    right: 24px;
-    bottom: 80px;
-    z-index: 1000;
+    padding: 10px 28px;
+    font-size: 1.1em;
     background: #1877f2;
     color: #fff;
     border: none;
-    border-radius: 50px;
-    padding: 12px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1em;
-    opacity: 0.85;
-    transition: opacity 0.2s;
+    margin-top: 20px;
 }
     #questionnaireBtn:hover {
-        opacity: 1;
-    }
+    background: #145db2;
+}
